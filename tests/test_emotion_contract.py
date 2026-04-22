@@ -1,0 +1,79 @@
+import unittest
+
+import bootstrap  # noqa: F401
+from emotion import SixEmotions, get_all_emotions, get_emotion_config
+
+
+class EmotionContractTest(unittest.TestCase):
+    def test_exports_exactly_six_pdf_emotions(self):
+        self.assertEqual(
+            get_all_emotions(),
+            ['happy', 'sad', 'fearful', 'angry', 'disgusted', 'surprised'],
+        )
+        self.assertEqual(SixEmotions.ALL, get_all_emotions())
+
+    def test_removed_emotions_are_not_available(self):
+        with self.assertRaises(ValueError):
+            get_emotion_config('confused')
+        with self.assertRaises(ValueError):
+            get_emotion_config('lost')
+
+    def test_every_emotion_has_runtime_metadata(self):
+        expected = {
+            'happy': ('loop', 6.0),
+            'sad': ('single', 4.0),
+            'fearful': ('single', 4.0),
+            'angry': ('single', 3.0),
+            'disgusted': ('single', 3.0),
+            'surprised': ('single', 2.0),
+        }
+        for emotion, pair in expected.items():
+            config = get_emotion_config(emotion)
+            self.assertEqual((config['type'], config['demo_seconds']), pair)
+
+    def test_pdf_sequences_match_expected_signature(self):
+        expected = {
+            'happy': {
+                'type': 'loop',
+                'modes': [12, 21, 11, 62],
+                'gaits': [0, 5, 10, 4],
+                'stop_mode': 3,
+            },
+            'sad': {
+                'type': 'single',
+                'modes': [12, 21, 21, 11, 62],
+                'gaits': [0, 5, 0, 27, 3],
+            },
+            'fearful': {
+                'type': 'single',
+                'modes': [21, 21, 11, 21, 21, 21],
+                'gaits': [5, 0, 27, 0, 0, 0],
+            },
+            'angry': {
+                'type': 'single',
+                'modes': [12, 21, 21, 11, 21, 21, 3],
+                'gaits': [0, 5, 0, 10, 0, 0, 0],
+            },
+            'disgusted': {
+                'type': 'single',
+                'modes': [21, 21, 21, 21, 21, 21],
+                'gaits': [5, 0, 0, 0, 0, 0],
+            },
+            'surprised': {
+                'type': 'single',
+                'modes': [21, 21, 21, 3],
+                'gaits': [5, 0, 0, 0],
+            },
+        }
+
+        for emotion, spec in expected.items():
+            config = get_emotion_config(emotion)
+            self.assertEqual(config['type'], spec['type'])
+            self.assertEqual([step['mode'] for step in config['sequence']], spec['modes'])
+            self.assertEqual([step.get('gait_id', 0) for step in config['sequence']], spec['gaits'])
+            if 'stop_mode' in spec:
+                self.assertEqual(config['stop_motion']['mode'], spec['stop_mode'])
+
+
+if __name__ == '__main__':
+    unittest.main()
