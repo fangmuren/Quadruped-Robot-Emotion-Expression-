@@ -75,7 +75,7 @@ class DemoRuntimeTest(unittest.TestCase):
 
         self.assertEqual(len(FakeSequencer.instances), 1)
         self.assertEqual(FakeSequencer.instances[0].executed, ['sad', 'happy'])
-        self.assertEqual(sleep_calls, [11.9, 0.5])
+        self.assertEqual(sleep_calls, [12.9, 0.5])
         self.assertEqual(FakeSequencer.instances[0].stop_calls, 1)
         self.assertTrue(FakeController.instances[0].closed)
 

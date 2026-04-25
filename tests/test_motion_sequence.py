@@ -1,5 +1,6 @@
 import time
 import unittest
+from unittest import mock
 
 import bootstrap  # noqa: F401
 from config import EMOTION_CONFIGS
@@ -72,6 +73,41 @@ class MotionSequenceTest(unittest.TestCase):
 
         self.assertLess(elapsed, 0.5)
         self.assertEqual(controller.commands[-1]['mode'], 3)
+
+    def test_happy_sequence_contains_2500ms_nodding_trot_burst(self):
+        original_happy = EMOTION_CONFIGS['happy']
+        EMOTION_CONFIGS['happy'] = {
+            'type': 'single',
+            'demo_seconds': 2.5,
+            'sequence': [
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, -0.10, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, -0.04, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, 0.02, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, 0.08, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, 0.12, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, 0.06, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, 0.00, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, -0.05, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, -0.10, 0.0], 'duration': 250},
+                {'mode': 11, 'gait_id': 10, 'velocity': [0.40, 0.0, 0.0], 'step_height': [0.04, 0.04], 'body_height': 0.24, 'rpy': [0.0, -0.02, 0.0], 'duration': 250},
+            ],
+        }
+        controller = FakeController()
+        sequencer = MotionSequence(controller)
+
+        try:
+            with mock.patch.object(MotionSequence, '_sleep_interruptibly', autospec=True, return_value=None):
+                sequencer.execute_emotion('happy')
+        finally:
+            EMOTION_CONFIGS['happy'] = original_happy
+
+        locomotion = [cmd for cmd in controller.commands if cmd['mode'] == 11 and cmd['gait_id'] == 10]
+        self.assertEqual(len(locomotion), 10)
+        self.assertEqual([cmd['duration'] for cmd in locomotion], [250] * 10)
+        self.assertEqual(
+            [cmd['rpy'][1] for cmd in locomotion],
+            [-0.10, -0.04, 0.02, 0.08, 0.12, 0.06, 0.00, -0.05, -0.10, -0.02],
+        )
 
 
 if __name__ == '__main__':

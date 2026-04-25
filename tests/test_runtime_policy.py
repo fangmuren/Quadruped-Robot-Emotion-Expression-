@@ -21,7 +21,7 @@ class RuntimePolicyTest(unittest.TestCase):
         self.assertEqual(get_post_execute_wait_seconds('surprised'), 0.0)
 
     def test_loop_emotions_wait_long_enough_to_finish_one_full_cycle(self):
-        self.assertAlmostEqual(get_post_execute_wait_seconds('happy'), 11.9, places=2)
+        self.assertAlmostEqual(get_post_execute_wait_seconds('happy'), 12.9, places=2)
 
 
 if __name__ == '__main__':
