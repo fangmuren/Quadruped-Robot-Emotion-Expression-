@@ -4,3 +4,4 @@ tests/__pycache__/
 .worktrees/
 *.pyc
 *.pyo
+.claude/
