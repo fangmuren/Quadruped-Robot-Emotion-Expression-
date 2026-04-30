@@ -20,11 +20,34 @@ class MotionSequenceTest(unittest.TestCase):
         controller = FakeController()
         sequencer = MotionSequence(controller)
 
-        sequencer.execute_emotion('sad')
+        with mock.patch.object(MotionSequence, '_sleep_interruptibly', autospec=True, return_value=None):
+            sequencer.execute_emotion('sad')
 
         self.assertFalse(sequencer.is_running())
         self.assertEqual(sequencer.current_emotion, 'sad')
-        self.assertEqual([cmd['mode'] for cmd in controller.commands], [12, 21, 21, 11, 62])
+        self.assertEqual([cmd['mode'] for cmd in controller.commands], [12, 21, 21, 21, 11, 62])
+
+    def test_sad_sequence_emits_confirmed_pitch_and_height_tuning(self):
+        controller = FakeController()
+        sequencer = MotionSequence(controller)
+
+        with mock.patch.object(MotionSequence, '_sleep_interruptibly', autospec=True, return_value=None):
+            sequencer.execute_emotion('sad')
+
+        self.assertEqual(len(controller.commands), 6)
+        self.assertEqual(controller.commands[1]['body_height'], 0.19)
+        self.assertEqual(controller.commands[2]['rpy'][1], -0.20)
+        self.assertEqual(controller.commands[2]['duration'], 1500)
+        self.assertEqual(controller.commands[3]['body_height'], 0.235)
+        self.assertEqual(controller.commands[4]['mode'], 11)
+        self.assertEqual(controller.commands[4]['gait_id'], 27)
+        self.assertEqual(controller.commands[4]['velocity'][0], -0.04)
+        self.assertEqual(controller.commands[4]['rpy'][1], 0.20)
+        self.assertEqual(controller.commands[4]['body_height'], 0.235)
+        self.assertEqual(controller.commands[4]['duration'], 3000)
+        self.assertEqual(controller.commands[5]['mode'], 62)
+        self.assertEqual(controller.commands[5]['gait_id'], 3)
+        self.assertEqual(controller.commands[5]['duration'], 3000)
 
     def test_loop_emotion_runs_in_background_until_stopped(self):
         controller = FakeController()

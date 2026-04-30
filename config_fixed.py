@@ -133,18 +133,21 @@ PDF_EMOTION_CONFIGS = {
             # 绝对站高先下压
             {'mode': 21, 'gait_id': 5, 'body_height': 0.19, 'duration': 500},
             # 相对俯仰低头
-            {'mode': 21, 'gait_id': 0, 'position': [0.0, 0.0, 0.0], 'rpy': [0.0, -0.12, 0.0], 'duration': 500},
+            {'mode': 21, 'gait_id': 0, 'position': [0.0, 0.0, 0.0], 'rpy': [0.0, -0.2, 0.0], 'duration': 1500},
+            # 抬回 locomotion 默认高度后再进入慢走
+            {'mode': 21, 'gait_id': 5, 'body_height': 0.235, 'duration': 500},
             # 慢走（接口表：编号303 -> mode=11, gait_id=27）
             {
                 'mode': 11,
                 'gait_id': 27,
-                'velocity': [-0.05, 0.0, 0.0],
+                'velocity': [-0.04, 0.0, 0.0],
+                'rpy': [0.0, 0.20, 0.0],
                 'step_height': [0.02, 0.02],
-                'body_height': 0.19,
-                'duration': 1200,
+                'body_height': 0.235,
+                'duration': 3000,
             },
             # 坐下（接口表：编号143 -> mode=62, gait_id=3，不是 mode=143）
-            {'mode': 62, 'gait_id': 3, 'duration': 1800},
+            {'mode': 62, 'gait_id': 3, 'duration': 3000},
         ],
     },
 

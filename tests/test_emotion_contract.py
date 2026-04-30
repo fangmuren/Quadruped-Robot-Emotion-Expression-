@@ -41,8 +41,8 @@ class EmotionContractTest(unittest.TestCase):
             },
             'sad': {
                 'type': 'single',
-                'modes': [12, 21, 21, 11, 62],
-                'gaits': [0, 5, 0, 27, 3],
+                'modes': [12, 21, 21, 21, 11, 62],
+                'gaits': [0, 5, 0, 5, 27, 3],
             },
             'fearful': {
                 'type': 'single',
@@ -79,6 +79,17 @@ class EmotionContractTest(unittest.TestCase):
                     [step['rpy'][1] for step in locomotion_steps],
                     [-0.10, -0.04, 0.02, 0.08, 0.12, 0.06, 0.00, -0.05, -0.10, -0.02],
                 )
+            if emotion == 'sad':
+                sequence = config['sequence']
+                self.assertEqual(sequence[1]['body_height'], 0.19)
+                self.assertEqual(sequence[2]['rpy'][1], -0.20)
+                self.assertEqual(sequence[2]['duration'], 1500)
+                self.assertEqual(sequence[3]['body_height'], 0.235)
+                self.assertEqual(sequence[4]['velocity'][0], -0.04)
+                self.assertEqual(sequence[4]['rpy'][1], 0.20)
+                self.assertEqual(sequence[4]['body_height'], 0.235)
+                self.assertEqual(sequence[4]['duration'], 3000)
+                self.assertEqual(sequence[5]['duration'], 3000)
             if 'stop_mode' in spec:
                 self.assertEqual(config['stop_motion']['mode'], spec['stop_mode'])
 
