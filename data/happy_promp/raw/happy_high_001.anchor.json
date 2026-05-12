@@ -1,0 +1,128 @@
+{
+  "sample_id": "happy_high_001",
+  "emotion": "happy",
+  "intensity": "high",
+  "source": "manual_seed",
+  "fixed_fields": {
+    "mode": 11,
+    "gait_id": 27,
+    "velocity_y": 0.0,
+    "rpy_roll": 0.0,
+    "rpy_yaw": 0.0,
+    "position": [0.0, 0.0, 0.0]
+  },
+  "anchors": [
+    {
+      "phase": "enter_fast",
+      "duration_ms": 180,
+      "velocity_x": 0.05,
+      "yaw_rate": 0.0,
+      "step_height_left": 0.024,
+      "step_height_right": 0.024,
+      "body_height": 0.241,
+      "pitch": 0.03,
+      "ornament": "none"
+    },
+    {
+      "phase": "build_high",
+      "duration_ms": 220,
+      "velocity_x": 0.075,
+      "yaw_rate": 0.12,
+      "step_height_left": 0.027,
+      "step_height_right": 0.027,
+      "body_height": 0.248,
+      "pitch": 0.08,
+      "ornament": "none"
+    },
+    {
+      "phase": "sway_L_big",
+      "duration_ms": 220,
+      "velocity_x": 0.088,
+      "yaw_rate": -0.16,
+      "step_height_left": 0.029,
+      "step_height_right": 0.029,
+      "body_height": 0.252,
+      "pitch": 0.11,
+      "ornament": "none"
+    },
+    {
+      "phase": "sway_R_big",
+      "duration_ms": 220,
+      "velocity_x": 0.088,
+      "yaw_rate": 0.16,
+      "step_height_left": 0.029,
+      "step_height_right": 0.029,
+      "body_height": 0.252,
+      "pitch": 0.11,
+      "ornament": "none"
+    },
+    {
+      "phase": "nod_high",
+      "duration_ms": 180,
+      "velocity_x": 0.08,
+      "yaw_rate": 0.0,
+      "step_height_left": 0.028,
+      "step_height_right": 0.028,
+      "body_height": 0.253,
+      "pitch": 0.15,
+      "ornament": "nod_high"
+    },
+    {
+      "phase": "lift_burst",
+      "duration_ms": 180,
+      "velocity_x": 0.09,
+      "yaw_rate": 0.08,
+      "step_height_left": 0.03,
+      "step_height_right": 0.03,
+      "body_height": 0.255,
+      "pitch": 0.12,
+      "ornament": "lift"
+    },
+    {
+      "phase": "sway_L_fast",
+      "duration_ms": 200,
+      "velocity_x": 0.082,
+      "yaw_rate": -0.18,
+      "step_height_left": 0.029,
+      "step_height_right": 0.029,
+      "body_height": 0.252,
+      "pitch": 0.1,
+      "ornament": "none"
+    },
+    {
+      "phase": "sway_R_fast",
+      "duration_ms": 200,
+      "velocity_x": 0.082,
+      "yaw_rate": 0.18,
+      "step_height_left": 0.029,
+      "step_height_right": 0.029,
+      "body_height": 0.252,
+      "pitch": 0.1,
+      "ornament": "none"
+    },
+    {
+      "phase": "recover_collect",
+      "duration_ms": 280,
+      "velocity_x": 0.04,
+      "yaw_rate": 0.0,
+      "step_height_left": 0.022,
+      "step_height_right": 0.022,
+      "body_height": 0.24,
+      "pitch": 0.03,
+      "ornament": "recover"
+    },
+    {
+      "phase": "recover_neutral",
+      "duration_ms": 300,
+      "velocity_x": 0.03,
+      "yaw_rate": 0.0,
+      "step_height_left": 0.02,
+      "step_height_right": 0.02,
+      "body_height": 0.236,
+      "pitch": 0.0,
+      "ornament": "recover"
+    }
+  ],
+  "returns_to_neutral": true,
+  "notes": "happy high seed sample"
+}

@@ -1,0 +1,4 @@
+sample_id,emotion,intensity,dt_ms,n_frames,ornament_type,returns_to_neutral,source,total_duration_ms,file_name
+happy_high_001,happy,high,50,45,nod_high,True,manual_seed,2180,happy_high_001.traj.json
+happy_low_001,happy,low,50,45,nod_small,True,manual_seed,1700,happy_low_001.traj.json
+happy_mid_001,happy,mid,50,45,nod_mid,True,manual_seed,2060,happy_mid_001.traj.json
