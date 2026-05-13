@@ -12,8 +12,8 @@ import numpy as np
 DEFAULT_CHANNELS = [
     'velocity_x',
     'yaw_rate',
-    'step_height_left',
-    'step_height_right',
+    'step_height_front',
+    'step_height_hind',
     'body_height',
     'pitch',
 ]

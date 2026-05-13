@@ -100,8 +100,8 @@ Per-frame mapping:
 - `channels.velocity_x[i] -> velocity[0]`
 - `0.0 -> velocity[1]`
 - `channels.yaw_rate[i] -> velocity[2]`
-- `channels.step_height_left[i] -> step_height[0]`
-- `channels.step_height_right[i] -> step_height[1]`
+- `channels.step_height_front[i] -> step_height[0]`
+- `channels.step_height_hind[i] -> step_height[1]`
 - `channels.body_height[i] -> body_height`
 - `0.0 -> rpy[0]`
 - `channels.pitch[i] -> rpy[1]`
@@ -126,8 +126,8 @@ Example output frame:
 
 Constraint note:
 
-- the dataset uses `step_height_left/right` naming while the runtime consumes a 2-element `step_height` vector
-- for this first version, map them positionally as `[left, right]`
+- the dataset uses separate front-leg and hind-leg step-height channel naming while the runtime consumes a 2-element `step_height` vector
+- for this first version, map them positionally as `[front, hind]`
 - because the current happy samples are symmetric, this keeps behavior stable enough for the first real-robot path
 - if future trajectories use asymmetric leg semantics, the adapter contract must be revisited explicitly
 

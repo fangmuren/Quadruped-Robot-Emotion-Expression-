@@ -193,7 +193,7 @@
       0.0,
       0.0
     ],
-    "step_height_left": [
+    "step_height_front": [
       0.024,
       0.024833,
       0.025667,
@@ -240,7 +240,7 @@
       0.02,
       0.02
     ],
-    "step_height_right": [
+    "step_height_hind": [
       0.024,
       0.024833,
       0.025667,

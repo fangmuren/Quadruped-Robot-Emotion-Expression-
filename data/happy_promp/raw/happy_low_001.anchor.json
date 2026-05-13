@@ -9,7 +9,11 @@
     "velocity_y": 0.0,
     "rpy_roll": 0.0,
     "rpy_yaw": 0.0,
-    "position": [0.0, 0.0, 0.0]
+    "position": [
+      0.0,
+      0.0,
+      0.0
+    ]
   },
   "anchors": [
     {
@@ -17,8 +21,8 @@
       "duration_ms": 250,
       "velocity_x": 0.035,
       "yaw_rate": 0.0,
-      "step_height_left": 0.021,
-      "step_height_right": 0.021,
+      "step_height_front": 0.021,
+      "step_height_hind": 0.021,
       "body_height": 0.238,
       "pitch": 0.01,
       "ornament": "none"
@@ -28,8 +32,8 @@
       "duration_ms": 300,
       "velocity_x": 0.045,
       "yaw_rate": 0.08,
-      "step_height_left": 0.022,
-      "step_height_right": 0.022,
+      "step_height_front": 0.022,
+      "step_height_hind": 0.022,
       "body_height": 0.24,
       "pitch": 0.03,
       "ornament": "none"
@@ -39,8 +43,8 @@
       "duration_ms": 300,
       "velocity_x": 0.05,
       "yaw_rate": -0.1,
-      "step_height_left": 0.023,
-      "step_height_right": 0.023,
+      "step_height_front": 0.023,
+      "step_height_hind": 0.023,
       "body_height": 0.241,
       "pitch": 0.04,
       "ornament": "none"
@@ -50,8 +54,8 @@
       "duration_ms": 300,
       "velocity_x": 0.048,
       "yaw_rate": 0.1,
-      "step_height_left": 0.023,
-      "step_height_right": 0.023,
+      "step_height_front": 0.023,
+      "step_height_hind": 0.023,
       "body_height": 0.241,
       "pitch": 0.04,
       "ornament": "none"
@@ -61,8 +65,8 @@
       "duration_ms": 250,
       "velocity_x": 0.04,
       "yaw_rate": 0.0,
-      "step_height_left": 0.022,
-      "step_height_right": 0.022,
+      "step_height_front": 0.022,
+      "step_height_hind": 0.022,
       "body_height": 0.24,
       "pitch": 0.06,
       "ornament": "nod_small"
@@ -72,8 +76,8 @@
       "duration_ms": 300,
       "velocity_x": 0.03,
       "yaw_rate": 0.0,
-      "step_height_left": 0.02,
-      "step_height_right": 0.02,
+      "step_height_front": 0.02,
+      "step_height_hind": 0.02,
       "body_height": 0.236,
       "pitch": 0.0,
       "ornament": "recover"

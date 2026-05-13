@@ -81,8 +81,8 @@ class PrompRuntimeDeterministicTrajTest(unittest.TestCase):
         self.assertEqual(sorted(traj['channels'].keys()), [
             'body_height',
             'pitch',
-            'step_height_left',
-            'step_height_right',
+            'step_height_front',
+            'step_height_hind',
             'velocity_x',
             'yaw_rate',
         ])
@@ -116,8 +116,8 @@ class PrompRuntimeAdapterTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.05, 0.06],
                 'yaw_rate': [-0.1, 0.1],
-                'step_height_left': [0.02, 0.03],
-                'step_height_right': [0.021, 0.031],
+                'step_height_front': [0.02, 0.03],
+                'step_height_hind': [0.021, 0.031],
                 'body_height': [0.24, 0.25],
                 'pitch': [0.02, 0.08],
             },
@@ -179,8 +179,8 @@ class PrompRuntimeRunnerTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.05, 0.06],
                 'yaw_rate': [0.0, 0.1],
-                'step_height_left': [0.02, 0.03],
-                'step_height_right': [0.02, 0.03],
+                'step_height_front': [0.02, 0.03],
+                'step_height_hind': [0.02, 0.03],
                 'body_height': [0.24, 0.25],
                 'pitch': [0.02, 0.08],
             },
@@ -207,8 +207,8 @@ class PrompRuntimeRunnerTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.05, 0.06],
                 'yaw_rate': [0.0, 0.1],
-                'step_height_left': [0.02, 0.03],
-                'step_height_right': [0.02, 0.03],
+                'step_height_front': [0.02, 0.03],
+                'step_height_hind': [0.02, 0.03],
                 'body_height': [0.24, 0.25],
                 'pitch': [0.02, 0.08],
             },
@@ -279,8 +279,8 @@ DEFAULT_FINISH_STEP = {'mode': 3, 'gait_id': 0, 'body_height': 0.23, 'duration':
 REQUIRED_CHANNELS = [
     'velocity_x',
     'yaw_rate',
-    'step_height_left',
-    'step_height_right',
+    'step_height_front',
+    'step_height_hind',
     'body_height',
     'pitch',
 ]
@@ -363,8 +363,8 @@ def traj_to_steps(traj):
                 channels['yaw_rate'][index],
             ],
             'step_height': [
-                channels['step_height_left'][index],
-                channels['step_height_right'][index],
+                channels['step_height_front'][index],
+                channels['step_height_hind'][index],
             ],
             'body_height': channels['body_height'][index],
             'rpy': [
@@ -428,8 +428,8 @@ DEFAULT_FINISH_STEP = {'mode': 3, 'gait_id': 0, 'body_height': 0.23, 'duration':
 REQUIRED_CHANNELS = [
     'velocity_x',
     'yaw_rate',
-    'step_height_left',
-    'step_height_right',
+    'step_height_front',
+    'step_height_hind',
     'body_height',
     'pitch',
 ]
@@ -512,8 +512,8 @@ def traj_to_steps(traj):
                 channels['yaw_rate'][index],
             ],
             'step_height': [
-                channels['step_height_left'][index],
-                channels['step_height_right'][index],
+                channels['step_height_front'][index],
+                channels['step_height_hind'][index],
             ],
             'body_height': channels['body_height'][index],
             'rpy': [

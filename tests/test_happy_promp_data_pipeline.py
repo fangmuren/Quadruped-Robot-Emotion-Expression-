@@ -45,8 +45,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
                     'duration_ms': 100,
                     'velocity_x': 0.03,
                     'yaw_rate': 0.00,
-                    'step_height_left': 0.020,
-                    'step_height_right': 0.020,
+                    'step_height_front': 0.020,
+                    'step_height_hind': 0.020,
                     'body_height': 0.236,
                     'pitch': 0.00,
                     'ornament': 'none',
@@ -56,8 +56,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
                     'duration_ms': 100,
                     'velocity_x': 0.05,
                     'yaw_rate': 0.10,
-                    'step_height_left': 0.024,
-                    'step_height_right': 0.024,
+                    'step_height_front': 0.024,
+                    'step_height_hind': 0.024,
                     'body_height': 0.242,
                     'pitch': 0.08,
                     'ornament': 'nod_small',
@@ -79,17 +79,51 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
         self.assertEqual(traj['aux_labels']['ornament_type'], 'nod_small')
         self.assertEqual(traj['channels']['velocity_x'], [0.03, 0.04, 0.05, 0.05, 0.05])
         self.assertEqual(traj['channels']['yaw_rate'], [0.0, 0.05, 0.1, 0.1, 0.1])
-        self.assertEqual(traj['channels']['step_height_left'], [0.02, 0.022, 0.024, 0.024, 0.024])
+        self.assertEqual(traj['channels']['step_height_front'], [0.02, 0.022, 0.024, 0.024, 0.024])
         self.assertEqual(traj['channels']['body_height'], [0.236, 0.239, 0.242, 0.242, 0.242])
         self.assertEqual(traj['channels']['pitch'], [0.0, 0.04, 0.08, 0.08, 0.08])
+
+    def test_repo_anchor_and_processed_files_use_front_hind_names(self):
+        raw_files = [
+            'happy_low_001.anchor.json',
+            'happy_mid_001.anchor.json',
+            'happy_high_001.anchor.json',
+        ]
+        processed_files = [
+            'happy_low_001.traj.json',
+            'happy_mid_001.traj.json',
+            'happy_high_001.traj.json',
+        ]
+
+        for raw_file in raw_files:
+            with (DATA_DIR / 'raw' / raw_file).open('r', encoding='utf-8') as f:
+                anchor = json.load(f)
+            for anchor_entry in anchor['anchors']:
+                self.assertIn('step_height_front', anchor_entry)
+                self.assertIn('step_height_hind', anchor_entry)
+                self.assertFalse(
+                    any(key.endswith(('_left', '_right')) for key in anchor_entry),
+                    msg=f'legacy left/right suffix key found in raw anchor entry: {sorted(anchor_entry)}',
+                )
+
+        for processed_file in processed_files:
+            with (DATA_DIR / 'processed' / processed_file).open('r', encoding='utf-8') as f:
+                traj = json.load(f)
+            channels = traj['channels']
+            self.assertIn('step_height_front', channels)
+            self.assertIn('step_height_hind', channels)
+            self.assertFalse(
+                any(key.endswith(('_left', '_right')) for key in channels),
+                msg=f'legacy left/right suffix key found in processed channels: {sorted(channels)}',
+            )
 
     def test_traj_to_matrix_groups_samples_and_exports_expected_shapes(self):
         module = load_module('traj_to_matrix_module', TRAJ_TO_MATRIX_PATH)
         channels = [
             'velocity_x',
             'yaw_rate',
-            'step_height_left',
-            'step_height_right',
+            'step_height_front',
+            'step_height_hind',
             'body_height',
             'pitch',
         ]
@@ -104,8 +138,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.03, 0.04, 0.03],
                 'yaw_rate': [0.0, 0.05, 0.0],
-                'step_height_left': [0.02, 0.022, 0.02],
-                'step_height_right': [0.02, 0.022, 0.02],
+                'step_height_front': [0.02, 0.022, 0.02],
+                'step_height_hind': [0.02, 0.022, 0.02],
                 'body_height': [0.236, 0.239, 0.236],
                 'pitch': [0.0, 0.04, 0.0],
             },
@@ -128,8 +162,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.05, 0.06, 0.05],
                 'yaw_rate': [0.0, 0.10, 0.0],
-                'step_height_left': [0.024, 0.025, 0.024],
-                'step_height_right': [0.024, 0.025, 0.024],
+                'step_height_front': [0.024, 0.025, 0.024],
+                'step_height_hind': [0.024, 0.025, 0.024],
                 'body_height': [0.242, 0.245, 0.242],
                 'pitch': [0.02, 0.08, 0.02],
             },
@@ -188,8 +222,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
         channels = [
             'velocity_x',
             'yaw_rate',
-            'step_height_left',
-            'step_height_right',
+            'step_height_front',
+            'step_height_hind',
             'body_height',
             'pitch',
         ]
@@ -204,8 +238,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.03, 0.04, 0.03],
                 'yaw_rate': [0.0, 0.05, 0.0],
-                'step_height_left': [0.02, 0.022, 0.02],
-                'step_height_right': [0.02, 0.022, 0.02],
+                'step_height_front': [0.02, 0.022, 0.02],
+                'step_height_hind': [0.02, 0.022, 0.02],
                 'body_height': [0.236, 0.239, 0.236],
                 'pitch': [0.0, 0.04, 0.0],
             },
@@ -228,8 +262,8 @@ class HappyPrompDataPipelineTest(unittest.TestCase):
             'channels': {
                 'velocity_x': [0.05, 0.07, 0.09, 0.07, 0.05],
                 'yaw_rate': [0.0, -0.08, 0.0, 0.08, 0.0],
-                'step_height_left': [0.024, 0.027, 0.03, 0.027, 0.024],
-                'step_height_right': [0.024, 0.027, 0.03, 0.027, 0.024],
+                'step_height_front': [0.024, 0.027, 0.03, 0.027, 0.024],
+                'step_height_hind': [0.024, 0.027, 0.03, 0.027, 0.024],
                 'body_height': [0.241, 0.248, 0.255, 0.248, 0.241],
                 'pitch': [0.03, 0.08, 0.15, 0.08, 0.03],
             },

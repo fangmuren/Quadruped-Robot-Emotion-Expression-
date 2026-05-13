@@ -6,6 +6,10 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+TESTS_DIR = Path(__file__).resolve().parent
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+
 import bootstrap  # noqa: F401
 
 
@@ -74,6 +78,7 @@ class RunPrompModelCliTest(unittest.TestCase):
         )
         output = stdout.getvalue()
         self.assertIn('status=dry_run', output)
+        self.assertIn(f'model_path={MODEL_PATH}', output)
         self.assertIn('n_frames=45', output)
         self.assertIn('velocity_x', output)
 
@@ -101,6 +106,39 @@ class RunPrompModelCliTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertIn('status=dry_run', stdout.getvalue())
+
+    def test_main_constructs_runner_with_callable_log_fn(self):
+        fake_result = {
+            'status': 'dry_run',
+            'summary': {
+                'n_frames': 45,
+                'dt_ms': 50,
+                'total_duration_ms': 2200,
+                'channel_ranges': {
+                    'velocity_x': {'min': 0.03, 'max': 0.07},
+                },
+            },
+        }
+        stdout = io.StringIO()
+
+        with mock.patch('run_promp_model.ModelTrajectoryRunner') as runner_cls:
+            runner_cls.return_value.run_model.return_value = fake_result
+            exit_code = run_promp_model.main([
+                str(MODEL_PATH),
+                '--dry-run',
+            ], stdout=stdout)
+
+        self.assertEqual(exit_code, 0)
+        _, kwargs = runner_cls.call_args
+        self.assertIn('log_fn', kwargs)
+        self.assertTrue(callable(kwargs['log_fn']))
+        kwargs['log_fn']('runtime line')
+        self.assertIn('runtime line\n', stdout.getvalue())
+        runner_cls.return_value.run_model.assert_called_once_with(
+            MODEL_PATH,
+            dry_run=True,
+            save_traj_path=None,
+        )
 
     def test_main_returns_non_zero_when_runner_raises_runtime_error(self):
         fake_runner = mock.Mock()

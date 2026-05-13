@@ -16,8 +16,9 @@ def _build_parser():
     return parser
 
 
-def _write_summary(stdout, result):
+def _write_summary(stdout, model_path, result):
     summary = result['summary']
+    stdout.write(f"model_path={model_path}\n")
     stdout.write(f"status={result['status']}\n")
     stdout.write(f"n_frames={summary['n_frames']}\n")
     stdout.write(f"dt_ms={summary['dt_ms']}\n")
@@ -33,7 +34,7 @@ def main(argv=None, stdout=None):
     parser = _build_parser()
     args = parser.parse_args(argv)
     stream = stdout or sys.stdout
-    runner = ModelTrajectoryRunner()
+    runner = ModelTrajectoryRunner(log_fn=lambda line: stream.write(f"{line}\n"))
 
     try:
         result = runner.run_model(
@@ -49,7 +50,7 @@ def main(argv=None, stdout=None):
         return 1
 
     if args.print_summary:
-        _write_summary(stream, result)
+        _write_summary(stream, args.model_npz, result)
     return 0
 
 
