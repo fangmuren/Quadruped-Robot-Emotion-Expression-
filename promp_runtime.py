@@ -1,0 +1,244 @@
+import json
+import time
+from pathlib import Path
+
+from data.happy_promp.sample_happy_promp import load_model, reconstruct_trajectory
+
+
+DEFAULT_SAMPLE_ID = 'happy_promp_runtime'
+DEFAULT_EMOTION = 'happy'
+DEFAULT_INTENSITY = 'mid'
+DEFAULT_MODE = 11
+DEFAULT_GAIT_ID = 27
+DEFAULT_VELOCITY_Y = 0.0
+DEFAULT_RPY_ROLL = 0.0
+DEFAULT_RPY_YAW = 0.0
+# Tied to the current happy ProMP output range; revisit if model scaling changes.
+VELOCITY_X_SOURCE_RANGE = (0.03, 0.088889)
+VELOCITY_X_TARGET_RANGE = (0.2, 0.4)
+YAW_RATE_CLAMP_RANGE = (-0.25, 0.25)
+STEP_HEIGHT_CLAMP_RANGE = (0.0, 0.05)
+BODY_HEIGHT_CLAMP_RANGE = (0.22, 0.27)
+PITCH_CLAMP_RANGE = (-0.05, 0.2)
+CHANNEL_CLAMP_RANGES = {
+    'yaw_rate': YAW_RATE_CLAMP_RANGE,
+    'step_height_front': STEP_HEIGHT_CLAMP_RANGE,
+    'step_height_hind': STEP_HEIGHT_CLAMP_RANGE,
+    'body_height': BODY_HEIGHT_CLAMP_RANGE,
+    'pitch': PITCH_CLAMP_RANGE,
+}
+DEFAULT_PREPARATION_STEPS = [
+    {'mode': 12, 'gait_id': 0, 'duration': 6000},
+    {'mode': 21, 'gait_id': 5, 'body_height': 0.24, 'duration': 400},
+]
+DEFAULT_FINISH_STEP = {'mode': 3, 'gait_id': 0, 'body_height': 0.23, 'duration': 600}
+REQUIRED_CHANNELS = [
+    'velocity_x',
+    'yaw_rate',
+    'step_height_front',
+    'step_height_hind',
+    'body_height',
+    'pitch',
+]
+
+
+def infer_model_labels(model_path):
+    stem_parts = Path(model_path).stem.split('_')
+    if len(stem_parts) >= 2:
+        return stem_parts[0], stem_parts[1]
+    return DEFAULT_EMOTION, DEFAULT_INTENSITY
+
+
+def build_deterministic_traj(model_path, sample_id=DEFAULT_SAMPLE_ID, emotion=None, intensity=None):
+    inferred_emotion, inferred_intensity = infer_model_labels(model_path)
+    model = load_model(Path(model_path))
+    channel_map = reconstruct_trajectory(model, model['mu_w'])
+    phase = [round(float(value), 6) for value in model['phase']]
+    time_ms = [model['dt_ms'] * idx for idx in range(model['n_frames'])]
+
+    return {
+        'sample_id': sample_id,
+        'emotion': inferred_emotion if emotion is None else emotion,
+        'intensity': inferred_intensity if intensity is None else intensity,
+        'dt_ms': model['dt_ms'],
+        'n_frames': model['n_frames'],
+        'phase': phase,
+        'time_ms': time_ms,
+        'channels': channel_map,
+        'aux_labels': {
+            'ornament_type': 'promp_sample',
+            'returns_to_neutral': True,
+        },
+        'meta': {
+            'source': 'promp_sample',
+            'model_n_basis': model['n_basis'],
+        },
+    }
+
+
+def summarize_traj(traj):
+    channels = traj['channels']
+    total_duration_ms = traj['dt_ms'] * max(traj['n_frames'] - 1, 0)
+    return {
+        'n_frames': traj['n_frames'],
+        'dt_ms': traj['dt_ms'],
+        'total_duration_ms': total_duration_ms,
+        'channel_ranges': {
+            name: {
+                'min': min(values),
+                'max': max(values),
+            }
+            for name, values in channels.items()
+        },
+    }
+
+
+def write_traj(path, traj):
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open('w', encoding='utf-8') as handle:
+        json.dump(traj, handle, ensure_ascii=False, indent=2)
+
+
+def _validate_traj(traj):
+    for key in ('dt_ms', 'n_frames', 'phase', 'time_ms', 'channels'):
+        if key not in traj:
+            raise ValueError(f'missing traj field: {key}')
+
+    channels = traj['channels']
+    for channel in REQUIRED_CHANNELS:
+        if channel not in channels:
+            raise ValueError(f'missing channel: {channel}')
+        if len(channels[channel]) != traj['n_frames']:
+            raise ValueError(f'channel length mismatch for {channel}')
+
+
+def clamp_value(value, min_value, max_value):
+    return max(min_value, min(value, max_value))
+
+
+def map_velocity_x(value):
+    source_min, source_max = VELOCITY_X_SOURCE_RANGE
+    target_min, target_max = VELOCITY_X_TARGET_RANGE
+    normalized = (value - source_min) / (source_max - source_min)
+    mapped_value = target_min + normalized * (target_max - target_min)
+    return clamp_value(mapped_value, target_min, target_max)
+
+
+def clamp_channel_value(channel_name, value):
+    if channel_name not in CHANNEL_CLAMP_RANGES:
+        valid_channels = ', '.join(sorted(CHANNEL_CLAMP_RANGES))
+        raise ValueError(f'unsupported channel: {channel_name}. expected one of: {valid_channels}')
+    min_value, max_value = CHANNEL_CLAMP_RANGES[channel_name]
+    return clamp_value(value, min_value, max_value)
+
+
+def traj_to_steps(traj):
+    _validate_traj(traj)
+    steps = []
+    channels = traj['channels']
+    for index in range(traj['n_frames']):
+        steps.append({
+            'mode': DEFAULT_MODE,
+            'gait_id': DEFAULT_GAIT_ID,
+            'velocity': [
+                map_velocity_x(channels['velocity_x'][index]),
+                DEFAULT_VELOCITY_Y,
+                clamp_channel_value('yaw_rate', channels['yaw_rate'][index]),
+            ],
+            'step_height': [
+                clamp_channel_value('step_height_front', channels['step_height_front'][index]),
+                clamp_channel_value('step_height_hind', channels['step_height_hind'][index]),
+            ],
+            'body_height': clamp_channel_value('body_height', channels['body_height'][index]),
+            'rpy': [
+                DEFAULT_RPY_ROLL,
+                clamp_channel_value('pitch', channels['pitch'][index]),
+                DEFAULT_RPY_YAW,
+            ],
+            'duration': traj['dt_ms'],
+        })
+    return steps
+
+
+class ModelTrajectoryRunner:
+    def __init__(self, controller_factory=None, sleep_fn=None, log_fn=None):
+        self.controller_factory = controller_factory
+        self.sleep_fn = time.sleep if sleep_fn is None else sleep_fn
+        self.log_fn = (lambda _message: None) if log_fn is None else log_fn
+
+    def _log(self, message):
+        self.log_fn(message)
+
+    def _create_controller(self):
+        if self.controller_factory is not None:
+            return self.controller_factory()
+        from robot_control import CyberDogController
+        return CyberDogController()
+
+    def run_model(self, model_path, dry_run=False, save_traj_path=None):
+        traj = build_deterministic_traj(model_path)
+        if save_traj_path is not None:
+            write_traj(save_traj_path, traj)
+        return self.run_traj(traj, dry_run=dry_run)
+
+    def run_traj(self, traj, dry_run=False):
+        steps = traj_to_steps(traj)
+        summary = summarize_traj(traj)
+        if dry_run:
+            return {
+                'status': 'dry_run',
+                'traj': traj,
+                'steps': steps,
+                'summary': summary,
+            }
+
+        self._log('controller_start')
+        controller = self._create_controller()
+        try:
+            self._log('preparation_start')
+            for step in DEFAULT_PREPARATION_STEPS:
+                controller.send_command(**step)
+            self._log(f"playback_start n_frames={len(steps)} dt_ms={traj['dt_ms']}")
+            for index, step in enumerate(steps, start=1):
+                if index == 1 or index == len(steps):
+                    self._log(f'playback_frame={index}/{len(steps)}')
+                controller.send_command(**step)
+                self.sleep_fn(step['duration'] / 1000.0)
+            self._log('finish_start')
+            controller.send_command(**DEFAULT_FINISH_STEP)
+            return {
+                'status': 'completed',
+                'traj': traj,
+                'steps': steps,
+                'summary': summary,
+            }
+        except KeyboardInterrupt:
+            try:
+                self._log('finish_start')
+                controller.send_command(**DEFAULT_FINISH_STEP)
+            except Exception:
+                pass
+            raise
+        except Exception:
+            try:
+                self._log('finish_start')
+                controller.send_command(**DEFAULT_FINISH_STEP)
+            except Exception:
+                pass
+            raise
+        finally:
+            controller.close()
+            self._log('controller_shutdown')
+
+
+def run_model(model_path, dry_run=False, save_traj_path=None):
+    return ModelTrajectoryRunner().run_model(
+        model_path,
+        dry_run=dry_run,
+        save_traj_path=save_traj_path,
+    )
+
+
+def run_traj(traj, dry_run=False):
+    return ModelTrajectoryRunner().run_traj(traj, dry_run=dry_run)

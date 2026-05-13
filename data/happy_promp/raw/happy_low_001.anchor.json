@@ -1,0 +1,88 @@
+{
+  "sample_id": "happy_low_001",
+  "emotion": "happy",
+  "intensity": "low",
+  "source": "manual_seed",
+  "fixed_fields": {
+    "mode": 11,
+    "gait_id": 27,
+    "velocity_y": 0.0,
+    "rpy_roll": 0.0,
+    "rpy_yaw": 0.0,
+    "position": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "anchors": [
+    {
+      "phase": "enter",
+      "duration_ms": 250,
+      "velocity_x": 0.035,
+      "yaw_rate": 0.0,
+      "step_height_front": 0.021,
+      "step_height_hind": 0.021,
+      "body_height": 0.238,
+      "pitch": 0.01,
+      "ornament": "none"
+    },
+    {
+      "phase": "build",
+      "duration_ms": 300,
+      "velocity_x": 0.045,
+      "yaw_rate": 0.08,
+      "step_height_front": 0.022,
+      "step_height_hind": 0.022,
+      "body_height": 0.24,
+      "pitch": 0.03,
+      "ornament": "none"
+    },
+    {
+      "phase": "sway_L",
+      "duration_ms": 300,
+      "velocity_x": 0.05,
+      "yaw_rate": -0.1,
+      "step_height_front": 0.023,
+      "step_height_hind": 0.023,
+      "body_height": 0.241,
+      "pitch": 0.04,
+      "ornament": "none"
+    },
+    {
+      "phase": "sway_R",
+      "duration_ms": 300,
+      "velocity_x": 0.048,
+      "yaw_rate": 0.1,
+      "step_height_front": 0.023,
+      "step_height_hind": 0.023,
+      "body_height": 0.241,
+      "pitch": 0.04,
+      "ornament": "none"
+    },
+    {
+      "phase": "nod_soft",
+      "duration_ms": 250,
+      "velocity_x": 0.04,
+      "yaw_rate": 0.0,
+      "step_height_front": 0.022,
+      "step_height_hind": 0.022,
+      "body_height": 0.24,
+      "pitch": 0.06,
+      "ornament": "nod_small"
+    },
+    {
+      "phase": "recover",
+      "duration_ms": 300,
+      "velocity_x": 0.03,
+      "yaw_rate": 0.0,
+      "step_height_front": 0.02,
+      "step_height_hind": 0.02,
+      "body_height": 0.236,
+      "pitch": 0.0,
+      "ornament": "recover"
+    }
+  ],
+  "returns_to_neutral": true,
+  "notes": "happy low seed sample"
+}
