@@ -1,7 +1,12 @@
 import unittest
 
 import bootstrap  # noqa: F401
-from emotion import SixEmotions, get_all_emotions, get_emotion_config
+from emotion import (
+    SixEmotions,
+    get_all_emotions,
+    get_behavior_plan,
+    get_emotion_config,
+)
 
 
 class EmotionContractTest(unittest.TestCase):
@@ -30,6 +35,22 @@ class EmotionContractTest(unittest.TestCase):
         for emotion, pair in expected.items():
             config = get_emotion_config(emotion)
             self.assertEqual((config['type'], config['demo_seconds']), pair)
+
+    def test_get_behavior_plan_exposes_inspectable_layers(self):
+        plan = get_behavior_plan('happy', rho=0.8, lambda_weight=1.2)
+        self.assertEqual(plan['emotion'], 'happy')
+        self.assertIn('trajectory', plan)
+        self.assertIn('selected_primitives', plan)
+        self.assertIn('compiled_config', plan)
+        self.assertEqual(plan['compiled_config']['type'], 'loop')
+        self.assertEqual(plan['compiled_config'], get_emotion_config('happy', rho=0.8, lambda_weight=1.2))
+        self.assertGreaterEqual(len(plan['selected_primitives']), 1)
+
+    def test_get_emotion_config_accepts_optional_rho_without_breaking_shape(self):
+        config = get_emotion_config('happy', rho=0.8)
+        self.assertEqual(config['type'], 'loop')
+        self.assertIn('sequence', config)
+        self.assertGreaterEqual(len(config['sequence']), 4)
 
     def test_pdf_sequences_match_expected_signature(self):
         expected = {

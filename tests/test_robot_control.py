@@ -1,10 +1,10 @@
-import sys
 import time
 import types
 import unittest
 from unittest import mock
 
 import bootstrap  # noqa: F401
+import robot_control
 
 
 class FakeLCMModule:
@@ -28,9 +28,7 @@ class FakeLCMModule:
             self.published.append(args)
 
 
-sys.modules.setdefault('lcm', types.SimpleNamespace(LCM=FakeLCMModule.LCM))
-
-from robot_control import CyberDogController
+CyberDogController = robot_control.CyberDogController
 
 
 class FakeLCM:
@@ -99,14 +97,15 @@ class RobotControlMappingTest(unittest.TestCase):
 
 class RobotControlHeartbeatTest(unittest.TestCase):
     def test_controller_republishes_latest_command_as_heartbeat(self):
-        controller = CyberDogController()
-        try:
-            controller.send_command(mode=12, gait_id=0, duration=100)
-            first_count = len(controller.lcm_tx.published)
-            time.sleep(0.05)
-            second_count = len(controller.lcm_tx.published)
-        finally:
-            controller.close()
+        with mock.patch.object(robot_control.lcm, 'LCM', FakeLCMModule.LCM):
+            controller = CyberDogController()
+            try:
+                controller.send_command(mode=12, gait_id=0, duration=100)
+                first_count = len(controller.lcm_tx.published)
+                time.sleep(0.05)
+                second_count = len(controller.lcm_tx.published)
+            finally:
+                controller.close()
 
         self.assertGreaterEqual(first_count, 1)
         self.assertGreater(second_count, first_count)
