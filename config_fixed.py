@@ -18,16 +18,20 @@
    - MOTION 扭屁股: mode=62, gait_id=4
 """
 
+from selection_strategy import build_behavior_plan, build_emotion_configs
+
+
+DEFAULT_RHO = 0.5
+DEFAULT_LAMBDA_WEIGHT = 1.0
+
+
 PDF_EMOTION_CONFIGS = {
     'happy': {
         'type': 'loop',
         'demo_seconds': 6.0,
         'sequence': [
-            # 先恢复站立；接口表要求 duration > 6000ms
             {'mode': 12, 'gait_id': 0, 'duration': 6000},
-            # 绝对站高
             {'mode': 21, 'gait_id': 5, 'body_height': 0.24, 'duration': 400},
-            # 小跑点头：总时长 2500ms，拆成多个短 step 近似连续俯仰摆动
             {
                 'mode': 11,
                 'gait_id': 10,
@@ -118,25 +122,18 @@ PDF_EMOTION_CONFIGS = {
                 'rpy': [0.0, -0.02, 0.0],
                 'duration': 250,
             },
-            # 扭屁股（接口表：编号144 -> mode=62, gait_id=4）
             {'mode': 62, 'gait_id': 4, 'duration': 4000},
         ],
-        # 姿态展示 / QP_STAND 收尾
         'stop_motion': {'mode': 3, 'gait_id': 0, 'body_height': 0.22, 'duration': 600},
     },
-
     'sad': {
         'type': 'single',
         'demo_seconds': 4.0,
         'sequence': [
             {'mode': 12, 'gait_id': 0, 'duration': 6000},
-            # 绝对站高先下压
             {'mode': 21, 'gait_id': 5, 'body_height': 0.19, 'duration': 500},
-            # 相对俯仰低头
             {'mode': 21, 'gait_id': 0, 'position': [0.0, 0.0, 0.0], 'rpy': [0.0, -0.2, 0.0], 'duration': 1500},
-            # 抬回 locomotion 默认高度后再进入慢走
             {'mode': 21, 'gait_id': 5, 'body_height': 0.235, 'duration': 500},
-            # 慢走（接口表：编号303 -> mode=11, gait_id=27）
             {
                 'mode': 11,
                 'gait_id': 27,
@@ -146,11 +143,9 @@ PDF_EMOTION_CONFIGS = {
                 'body_height': 0.235,
                 'duration': 3000,
             },
-            # 坐下（接口表：编号143 -> mode=62, gait_id=3，不是 mode=143）
             {'mode': 62, 'gait_id': 3, 'duration': 3000},
         ],
     },
-
     'fearful': {
         'type': 'single',
         'demo_seconds': 4.0,
@@ -170,7 +165,6 @@ PDF_EMOTION_CONFIGS = {
             {'mode': 21, 'gait_id': 0, 'position': [0.0, 0.0, 0.0], 'rpy': [0.0, -0.08, 0.35], 'duration': 500},
         ],
     },
-
     'angry': {
         'type': 'single',
         'demo_seconds': 3.0,
@@ -191,7 +185,6 @@ PDF_EMOTION_CONFIGS = {
             {'mode': 3, 'gait_id': 0, 'body_height': 0.23, 'duration': 800},
         ],
     },
-
     'disgusted': {
         'type': 'single',
         'demo_seconds': 3.0,
@@ -204,7 +197,6 @@ PDF_EMOTION_CONFIGS = {
             {'mode': 21, 'gait_id': 0, 'position': [0.0, 0.0, 0.0], 'rpy': [0.0, 0.0, 0.28], 'duration': 800},
         ],
     },
-
     'surprised': {
         'type': 'single',
         'demo_seconds': 2.0,
@@ -217,4 +209,13 @@ PDF_EMOTION_CONFIGS = {
     },
 }
 
+
 EMOTION_CONFIGS = PDF_EMOTION_CONFIGS
+
+
+def generate_emotion_configs(rho: float = DEFAULT_RHO, lambda_weight: float = DEFAULT_LAMBDA_WEIGHT):
+    return build_emotion_configs(rho=rho, lambda_weight=lambda_weight)
+
+
+def generate_behavior_plan(emotion: str, rho: float = DEFAULT_RHO, lambda_weight: float = DEFAULT_LAMBDA_WEIGHT):
+    return build_behavior_plan(emotion, rho=rho, lambda_weight=lambda_weight)

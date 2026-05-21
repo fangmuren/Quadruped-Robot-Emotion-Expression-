@@ -1,13 +1,7 @@
 import unittest
 
 import bootstrap  # noqa: F401
-from config import EMOTION_CONFIGS
-from emotion import get_post_execute_wait_seconds
-
-
-def get_runtime_policy(emotion):
-    config = EMOTION_CONFIGS[emotion]
-    return config['type'], config['demo_seconds']
+from emotion import get_post_execute_wait_seconds, get_runtime_policy
 
 
 class RuntimePolicyTest(unittest.TestCase):

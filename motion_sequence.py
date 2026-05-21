@@ -18,13 +18,14 @@ class MotionSequence:
         self._stop_requested = False
         self._worker = None
 
-    def execute_emotion(self, emotion: str):
-        if emotion not in EMOTION_CONFIGS:
-            raise ValueError(f"Unknown emotion: {emotion}")
+    def execute_emotion(self, emotion: str, config: dict = None):
+        if config is None:
+            if emotion not in EMOTION_CONFIGS:
+                raise ValueError(f"Unknown emotion: {emotion}")
+            config = EMOTION_CONFIGS[emotion]
         if self.is_running():
             raise RuntimeError("Another emotion is already running")
 
-        config = EMOTION_CONFIGS[emotion]
         self.current_emotion = emotion
         self._stop_requested = False
         self.is_executing = True
